@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Summary - Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Monthly Summary</h1>
+        
+        <!-- Navigation -->
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">← Back to Tracker</a>
+        </div>
+
+        <!-- Monthly Summary -->
+        <div class="summary-section">
+            {% if monthly_data %}
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Income</th>
+                        <th>Expenses</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month, data in monthly_data %}
+                    <tr>
+                        <td class="month-cell">{{ month }}</td>
+                        <td class="income">+₹{{ "%.2f"|format(data.income) }}</td>
+                        <td class="expense">-₹{{ "%.2f"|format(data.expenses) }}</td>
+                        <td class="{% if data.balance >= 0 %}positive{% else %}negative{% endif %}">
+                            ₹{{ "%.2f"|format(data.balance) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">No data available. Start adding transactions!</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

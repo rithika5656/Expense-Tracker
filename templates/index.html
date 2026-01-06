@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>💰 Expense Tracker</h1>
+        
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card income-card">
+                <h3>Total Income</h3>
+                <p class="amount">₹{{ "%.2f"|format(total_income) }}</p>
+            </div>
+            <div class="card expense-card">
+                <h3>Total Expenses</h3>
+                <p class="amount">₹{{ "%.2f"|format(total_expenses) }}</p>
+            </div>
+            <div class="card balance-card {% if balance >= 0 %}positive{% else %}negative{% endif %}">
+                <h3>Balance</h3>
+                <p class="amount">₹{{ "%.2f"|format(balance) }}</p>
+            </div>
+        </div>
+
+        <!-- Add Transaction Form -->
+        <div class="form-section">
+            <h2>Add Transaction</h2>
+            <form action="{{ url_for('add_transaction') }}" method="POST" class="transaction-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select id="type" name="type" required>
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <input type="text" id="description" name="description" placeholder="Enter description" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Amount (₹)</label>
+                        <input type="number" id="amount" name="amount" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="salary">Salary</option>
+                            <option value="freelance">Freelance</option>
+                            <option value="food">Food</option>
+                            <option value="transport">Transport</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="shopping">Shopping</option>
+                            <option value="health">Health</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group btn-group">
+                        <button type="submit" class="btn btn-primary">Add Transaction</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-links">
+            <a href="{{ url_for('monthly_summary') }}" class="btn btn-secondary">📊 View Monthly Summary</a>
+        </div>
+
+        <!-- Transaction History -->
+        <div class="history-section">
+            <h2>Transaction History</h2>
+            {% if transactions %}
+            <table class="transaction-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions|reverse %}
+                    <tr class="{{ t.type }}">
+                        <td>{{ t.date }}</td>
+                        <td>{{ t.description }}</td>
+                        <td><span class="category-badge">{{ t.category }}</span></td>
+                        <td><span class="type-badge {{ t.type }}">{{ t.type|capitalize }}</span></td>
+                        <td class="amount-cell {{ t.type }}">
+                            {% if t.type == 'income' %}+{% else %}-{% endif %}₹{{ "%.2f"|format(t.amount) }}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('delete_transaction', id=t.id) }}" class="btn btn-delete" onclick="return confirm('Are you sure?')">🗑️</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-data">No transactions yet. Add your first transaction above!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Set default date to today
+        document.getElementById('date').valueAsDate = new Date();
+    </script>
+</body>
+</html>
